@@ -70,6 +70,7 @@ from op_methods.rcds import *
 from op_methods.custom_minimizer import *
 from op_methods.powell import *
 from op_methods.gp_sklearn import *
+from op_methods.teeport import Teeport
 
 
 from stats import stats
@@ -130,6 +131,7 @@ class OcelotInterfaceWindow(QFrame):
         self.name_powell = "Powell"
         self.name_gauss_gpy = "GP GPy"
         self.name_rcds = "RCDS"
+        self.name_teeport = "Teeport"
         # self.name4 = "Conjugate Gradient"
         # self.name5 = "Powell's Method"
         # switch of GP and custom Mininimizer
@@ -140,6 +142,7 @@ class OcelotInterfaceWindow(QFrame):
         self.ui.cb_select_alg.addItem(self.name_es)
         self.ui.cb_select_alg.addItem(self.name_powell)
         self.ui.cb_select_alg.addItem(self.name_rcds)
+        self.ui.cb_select_alg.addItem(self.name_teeport)
         #self.ui.cb_select_alg.addItem(self.name_gauss_gpy)
         # if sklearn_version >= "0.18":
         #     self.ui.cb_select_alg.addItem(self.name_gauss_sklearn)
@@ -402,6 +405,9 @@ class OcelotInterfaceWindow(QFrame):
             minimizer = Powell()
         elif current_method == self.name_rcds:
             minimizer = RCDS()
+        elif current_method == self.name_teeport:
+            uri = 'ws://10.0.0.172:8080/'
+            minimizer = Teeport(uri)
         #simplex Method
         else:
             minimizer = Simplex()

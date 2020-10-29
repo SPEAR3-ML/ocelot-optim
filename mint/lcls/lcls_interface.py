@@ -203,7 +203,7 @@ class LCLSMachineInterface(MachineInterface):
 
     def get_losses(self):
         #losses = [self.get_value(pv) for pv in self.losspvs]
-	losses = [0 for pv in self.losspvs]
+        losses = [0 for pv in self.losspvs]
         return losses
 
     def logbook(self, gui):
@@ -212,7 +212,7 @@ class LCLSMachineInterface(MachineInterface):
         objective_func_pv = objective_func.eid
 
 
-     	
+        
         log_text = ""
         if len(objective_func.values) > 0:
             log_text = "Gain (" + str(objective_func_pv) + "): " + str(round(objective_func.values[0], 4)) + " -> " + str(

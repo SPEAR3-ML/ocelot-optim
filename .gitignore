@@ -108,3 +108,6 @@ ENV/
 
 # vim
 *.swp
+
+# OS
+.DS_Store

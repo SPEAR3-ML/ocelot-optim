@@ -308,6 +308,19 @@ class MainWindow(Ui_Form):
         except IOError:
             print ('No style sheet found!')
 
+    def switch_setup_box(self, series='isim'):
+        setup_boxes = {
+            'isim': self.g_box_isim,
+            'gp': self.g_box_gp,
+            'teeport': self.g_box_teeport
+        }
+
+        for k, v in setup_boxes.items():
+            if k == series:
+                v.setVisible(True)
+            else:
+                v.setVisible(False)
+
     def change_state_scipy_setup(self):
         """
         Method to enable/disable "Scipy Scanner Setup". If scipy version < "0.18" then QGroup will be disable.
@@ -334,6 +347,7 @@ class MainWindow(Ui_Form):
             self.sb_isim_rel_step.setEnabled(False)
 
         if str(self.cb_select_alg.currentText()) == self.Form.name_custom:
+            self.switch_setup_box()
             self.g_box_isim.setEnabled(True)
             self.label_23.setEnabled(True)
             self.sb_isim_rel_step.setEnabled(True)
@@ -344,6 +358,7 @@ class MainWindow(Ui_Form):
             self.sb_isim_rel_step.setValue(5)
 
         if str(self.cb_select_alg.currentText()) in [self.Form.name_simplex_norm, self.Form.name_gauss_sklearn]:
+            self.switch_setup_box('gp')
             self.g_box_isim.setEnabled(True)
             self.label_23.setEnabled(True)
             self.sb_isim_rel_step.setEnabled(True)
@@ -354,15 +369,18 @@ class MainWindow(Ui_Form):
             self.sb_isim_rel_step.setValue(5)
 
         if str(self.cb_select_alg.currentText()) in [self.Form.name_gauss, self.Form.name_gauss_sklearn]:
-            self.groupBox_2.setEnabled(True)
-            for w in self.groupBox_2.findChildren(QWidget):
+            self.switch_setup_box('gp')
+            self.g_box_gp.setEnabled(True)
+            for w in self.g_box_gp.findChildren(QWidget):
                 w.setEnabled(True)
         else:
-            self.groupBox_2.setEnabled(False)
-            for w in self.groupBox_2.findChildren(QWidget):
+            self.switch_setup_box('isim')
+            self.g_box_gp.setEnabled(False)
+            for w in self.g_box_gp.findChildren(QWidget):
                 w.setEnabled(False)
 
         if str(self.cb_select_alg.currentText()) in [self.Form.name_es]:
+            self.switch_setup_box('isim')
             self.g_box_isim.setEnabled(True)
             self.label_23.setEnabled(True)
             self.sb_isim_rel_step.setEnabled(True)
@@ -371,6 +389,9 @@ class MainWindow(Ui_Form):
             #self.cb_use_isim.setCheckState(True)
             self.cb_use_isim.setEnabled(False)
             self.sb_isim_rel_step.setValue(5)
+
+        if str(self.cb_select_alg.currentText()) in [self.Form.name_teeport]:
+            self.switch_setup_box('teeport')
 
     def use_predef_fun(self):
         if self.cb_use_predef.checkState():

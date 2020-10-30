@@ -1,13 +1,16 @@
 from __future__ import print_function, absolute_import
 from mint.mint import *
+import nest_asyncio
+nest_asyncio.apply()
 from teeport import Teeport as Tee
 
 class Teeport(Minimizer):
-    def __init__(self, uri=None):
+    def __init__(self, uri=None, optimizer_id=None):
         super(Teeport, self).__init__()
         self.xtol = 1e-5
         self.dev_steps = None
         self.uri = uri
+        self.opt_id = optimizer_id
     
     def preprocess(self):
         """
@@ -29,23 +32,6 @@ class Teeport(Minimizer):
                 self.dev_steps.append(dev.istep)
     
     def minimize(self,  error_func, x):
-        #print("start seed", np.count_nonzero(self.dev_steps))
-        if self.dev_steps == None or len(self.dev_steps) != len(x):
-            print("initial Teeport is None")
-            isim = None
-        elif np.count_nonzero(self.dev_steps) != len(x):
-            print("There is zero step. Initial Teeport is None")
-            isim = None
-        else:
-            #step = np.ones(len(x))*0.05
-            isim = np.zeros((len(x) + 1, len(x)))
-            isim[0, :] = x
-            for i in range(len(x)):
-                vertex = np.zeros(len(x))
-                vertex[i] = self.dev_steps[i]
-                isim[i + 1, :] = x + vertex
-            print("ISIM = ", isim)
-
         nvar = len(x)
         g_vrange = np.zeros((nvar, 2))
         for idev, dev in enumerate(self.devices):
@@ -53,20 +39,29 @@ class Teeport(Minimizer):
             if np.abs(low_limit) < 1e-7 and np.abs(high_limit) < 1e-7:
                 low_limit, high_limit = -10, 10
             g_vrange[idev, 0], g_vrange[idev, 1] = low_limit, high_limit
+
         p0 = np.array(x)
         x0 = ((p0 - g_vrange[:, 0])/(g_vrange[:, 1] - g_vrange[:, 0])).reshape(1, -1)
 
-        uri = self.uri or 'ws://localhost:8080/'
-        teeport = Tee(uri)  # init a Teeport adapter
-        optimizer_id = ''
-        configs = {
-            'xtol': self.xtol,
-            'maxiter': self.max_iter,
-            'isim': isim,
-            'x0': x
-        }
-        optimize = teeport.use_optimizer(optimizer_id, configs)
-        res = optimize(error_func)
-        teeport.reset()  # clean up
+        teeport = Tee(self.uri)  # init a Teeport adapter
+        # configs = {
+        #     'xtol': self.xtol,
+        #     'maxiter': self.max_iter,
+        #     'isim': isim,
+        #     'x0': x
+        # }
+        # optimize = teeport.use_optimizer(self.opt_id, configs)
+        optimize = teeport.use_optimizer(self.opt_id)
 
-        return res
+        def evaluate(X, configs=None):
+            X = (g_vrange[:, 1] - g_vrange[:, 0]) * X + g_vrange[:, 0]  # denormalize
+            Y = []
+            for x in X:
+                Y.append(-error_func(x))
+            Y = np.array(Y).reshape(-1, 1)
+            return Y
+
+        optimize(evaluate)
+        # teeport.reset()  # clean up
+
+        return x

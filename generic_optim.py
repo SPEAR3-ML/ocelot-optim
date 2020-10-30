@@ -406,8 +406,9 @@ class OcelotInterfaceWindow(QFrame):
         elif current_method == self.name_rcds:
             minimizer = RCDS()
         elif current_method == self.name_teeport:
-            uri = 'ws://10.0.0.172:8080/'
-            minimizer = Teeport(uri)
+            uri = self.ui.le_tee_addr.text()
+            opt_id = self.ui.le_tee_opt_id.text()
+            minimizer = Teeport(uri, opt_id)
         #simplex Method
         else:
             minimizer = Simplex()
@@ -538,6 +539,14 @@ class OcelotInterfaceWindow(QFrame):
             minimizer.bounds = bounds
 
             minimizer.norm_coef = self.ui.sb_isim_rel_step.value() / 100.
+
+        # elif minimizer.__class__ in [Teeport]:
+        #     bounds = []
+        #     for dev in self.devices:
+        #         bounds.append(dev.get_limits())
+        #     minimizer.bounds = bounds
+
+        #     minimizer.norm_coef = self.ui.sb_isim_rel_step.value() / 100.
 
         elif minimizer.__class__ == CustomMinimizer:
             minimizer.dev_steps = []

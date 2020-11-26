@@ -335,6 +335,7 @@ class Optimizer(Thread):
         # devices are needed for "devmode"
         self.target.devices = self.devices
 
+        print('first evaluation!')
         target_ref = self.target.get_penalty()
 
         x = self.meta_dev.get()
@@ -345,6 +346,7 @@ class Optimizer(Thread):
         self.minimizer.preprocess()
 
         x = self.minimizer.normalize(x)
+        print('second evaluation+')
         res = self.minimizer.minimize(self.error_func, x)
 
         # set best solution

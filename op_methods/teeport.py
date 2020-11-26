@@ -1,7 +1,6 @@
 from __future__ import print_function, absolute_import
 from mint.mint import *
-import nest_asyncio
-nest_asyncio.apply()
+import asyncio
 from teeport import Teeport as Tee
 
 class Teeport(Minimizer):
@@ -57,11 +56,19 @@ class Teeport(Minimizer):
             X = (g_vrange[:, 1] - g_vrange[:, 0]) * X + g_vrange[:, 0]  # denormalize
             Y = []
             for x in X:
-                Y.append(-error_func(x))
+                if self.opt_ctrl.kill:
+                    teeport.wildcard.stop_task()
+                    # return None to crash the evaluator intentionally
+                    # or the evaluator will return some invalid Y
+                    return
+                y = error_func(x)
+#                 print('error func: ', y)
+                Y.append(y)
             Y = np.array(Y).reshape(-1, 1)
             return Y
 
         optimize(evaluate)
-        # teeport.reset()  # clean up
+        teeport.reset()  # clean up
+        asyncio.get_event_loop().close()
 
         return x

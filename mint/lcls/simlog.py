@@ -140,7 +140,7 @@ def save(guiname, data, path='default', **kws):
     data = {'data': removeUnicodeKeys(data)}  # need to remove unicode keys since scipy.savemat doesn't like them
 
     #try:
-    print("Will call savemat with: ", fout, data, kws)
+    # print("Will call savemat with: ", fout, data, kws)
     savemat(fout, data, **kws)
     print('INFO: simlog - Saved scan data to ' + fout + '.mat')
     #except Exception as ex:
